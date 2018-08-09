@@ -3,27 +3,28 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/Splah_Bg"
     android:layout_width="match_parent"
+    android:background="@drawable/unsplash"
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_centerInParent="true">
 
-        <ImageView
+        <TextView
             android:id="@+id/imgLogo"
-            android:layout_width="175dp"
-            android:layout_height="175dp"
-            android:src="@drawable/ic_launcher_background"
+            android:layout_width="match_parent"
+            android:text="@string/app_name"
+            android:textColor="@color/colorAccent"
+            android:textSize="24sp"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center"
+            android:textStyle="italic"
+            android:fontFamily="cursive"
+            android:layout_height="match_parent"
             android:scaleType="fitXY" />
 
-        <ProgressBar
-            android:id="@+id/progress_splash"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingTop="40dp" />
 
     </LinearLayout>
     <!--
