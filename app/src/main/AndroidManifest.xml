@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.vt.vedamurthy.vtranslator.common.SplashScreen"
+            android:name=".common.SplashScreen"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -21,7 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.vt.vedamurthy.vtranslator.MainActivity" />
+        <activity android:name=".MainActivity" />
+        <activity android:name=".common.AboutActivity"></activity>
     </application>
 
 </manifest>
