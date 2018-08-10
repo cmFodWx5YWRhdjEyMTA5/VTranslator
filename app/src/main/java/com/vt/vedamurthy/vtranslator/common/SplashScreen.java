@@ -1,14 +1,13 @@
-package activities;
+package com.vt.vedamurthy.vtranslator.common;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.vt.vedamurthy.vtranslator.MainActivity;
 import com.vt.vedamurthy.vtranslator.R;
 
 public class SplashScreen extends AppCompatActivity {
