@@ -31,6 +31,7 @@
     <TextView
         android:id="@+id/spoken_text_et"
         android:layout_width="match_parent"
+        android:fontFamily="@string/font_family_thin"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Spoken Text is shown here..."

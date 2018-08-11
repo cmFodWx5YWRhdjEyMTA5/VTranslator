@@ -2,6 +2,7 @@ package com.vt.vedamurthy.vtranslator;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -19,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -43,6 +46,8 @@ import com.google.android.gms.ads.reward.RewardItem;
 import com.google.android.gms.ads.reward.RewardedVideoAd;
 import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.vt.vedamurthy.vtranslator.R;
+import com.vt.vedamurthy.vtranslator.common.AboutActivity;
+import com.vt.vedamurthy.vtranslator.common.Configs;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -64,12 +69,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        checkPermission();
-
         showAd = findViewById(R.id.show_ad);
         showAd.setEnabled(false);
-        MobileAds.initialize(this,"ca-app-pub-3940256099942544/5224354917");
+        MobileAds.initialize(this, Configs.REWARDED_AD_MOB_UNIT_ID_TEST);
         /*mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
 
@@ -133,9 +135,8 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -289,18 +290,17 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
-        }
-    }
-
-    private void checkPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!(ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)) {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.parse("package:" + getPackageName()));
-                startActivity(intent);
-                finish();
-            }
+            new AlertDialog.Builder(this)
+                    .setMessage("Are you sure you want to exit?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+            //super.onBackPressed();
         }
     }
 
@@ -346,6 +346,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_send) {
             navigateToPlayStore();
         }
+        else if (id == R.id.nav_about) {
+            navigateToAbout();
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -356,6 +359,12 @@ public class MainActivity extends AppCompatActivity
     {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("market://details?id=com.disha.quickride"));
+        startActivity(intent);
+    }
+
+    private void navigateToAbout()
+    {
+        Intent intent = new Intent(this, AboutActivity.class);
         startActivity(intent);
     }
 
