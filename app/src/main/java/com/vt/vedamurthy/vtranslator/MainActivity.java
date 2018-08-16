@@ -6,9 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -49,6 +51,8 @@ import com.vt.vedamurthy.vtranslator.R;
 import com.vt.vedamurthy.vtranslator.common.AboutActivity;
 import com.vt.vedamurthy.vtranslator.common.Configs;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -63,6 +67,16 @@ public class MainActivity extends AppCompatActivity
     private InterstitialAd mInterstitialAd;
     private RewardedVideoAd mRewardedVideoAd;
     private Button showAd;
+    private MediaRecorder recorder = null;
+    private int currentFormat = 0;
+
+    private static final String AUDIO_RECORDER_FILE_EXT_3GP = ".3gp";
+    private static final String AUDIO_RECORDER_FILE_EXT_MP4 = ".mp4";
+    private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
+
+    private int output_formats[] = { MediaRecorder.OutputFormat.MPEG_4,MediaRecorder.OutputFormat.THREE_GPP };
+    private String file_exts[] = { AUDIO_RECORDER_FILE_EXT_MP4, AUDIO_RECORDER_FILE_EXT_3GP };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,51 +86,6 @@ public class MainActivity extends AppCompatActivity
         showAd = findViewById(R.id.show_ad);
         showAd.setEnabled(false);
         MobileAds.initialize(this, Configs.REWARDED_AD_MOB_UNIT_ID_TEST);
-        /*mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712");
-
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-                showAd.setEnabled(true);
-            }
-
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when the ad is displayed.
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when when the interstitial ad is closed.
-            }
-        });
-
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
-
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdClosed() {
-                // Load the next interstitial.
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
-            }
-
-        });*/
-
-        /*mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);*/
 
         mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
         mRewardedVideoAd.setRewardedVideoAdListener(this);
@@ -129,9 +98,6 @@ public class MainActivity extends AppCompatActivity
                 if (mRewardedVideoAd.isLoaded()) {
                     mRewardedVideoAd.show();
                 }
-                /*if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.show();
-                }*/
             }
         });
 
@@ -176,12 +142,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initialiseButtonAction(final TextView spokenText) {
-        mSpeakBtn.setOnClickListener(new View.OnClickListener() {
+        /*mSpeakBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startVoiceInput();
             }
-        });
+        });*/
         mSpeakBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -189,17 +155,73 @@ public class MainActivity extends AppCompatActivity
                     case MotionEvent.ACTION_UP:
                         //when the user removed the finger
                         spokenText.setHint("You will see input here");
+                        stopRecording();
                         break;
 
                     case MotionEvent.ACTION_DOWN:
                         //finger is on the button
                         spokenText.setText("");
                         spokenText.setHint(getResources().getString(R.string.listening));
+                        startRecording();
                         break;
                 }
                 return false;
             }
         });
+    }
+
+    private String getFilename(){
+        String filepath = Environment.getExternalStorageDirectory().getPath();
+        File file = new File(filepath,AUDIO_RECORDER_FOLDER);
+
+        if(!file.exists()){
+            file.mkdirs();
+        }
+
+        return (file.getAbsolutePath() + "/" + System.currentTimeMillis() + file_exts[currentFormat]);
+    }
+
+    private void startRecording(){
+        recorder = new MediaRecorder();
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorder.setOutputFormat(output_formats[currentFormat]);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        recorder.setOutputFile(getFilename());
+        recorder.setOnErrorListener(errorListener);
+        recorder.setOnInfoListener(infoListener);
+
+        try {
+            recorder.prepare();
+            recorder.start();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private MediaRecorder.OnErrorListener errorListener = new MediaRecorder.OnErrorListener() {
+        @Override
+        public void onError(MediaRecorder mr, int what, int extra) {
+            //AppLog.logString("Error: " + what + ", " + extra);
+        }
+    };
+
+    private MediaRecorder.OnInfoListener infoListener = new MediaRecorder.OnInfoListener() {
+        @Override
+        public void onInfo(MediaRecorder mr, int what, int extra) {
+            //AppLog.logString("Warning: " + what + ", " + extra);
+        }
+    };
+
+    private void stopRecording(){
+        if(null != recorder){
+            recorder.stop();
+            recorder.reset();
+            recorder.release();
+
+            recorder = null;
+        }
     }
 
     @Override
@@ -339,6 +361,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
+            navigateToRecord();
 
         } else if (id == R.id.nav_share) {
             shareApp();
@@ -365,6 +388,12 @@ public class MainActivity extends AppCompatActivity
     private void navigateToAbout()
     {
         Intent intent = new Intent(this, AboutActivity.class);
+        startActivity(intent);
+    }
+
+    private void navigateToRecord()
+    {
+        Intent intent = new Intent(this, com.android.audiorecordtest.RecordAudioAndPlayActivity.class);
         startActivity(intent);
     }
 

@@ -35,6 +35,7 @@
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
+        <activity android:name="com.android.audiorecordtest.RecordAudioAndPlayActivity" />
     </application>
 
 </manifest>
