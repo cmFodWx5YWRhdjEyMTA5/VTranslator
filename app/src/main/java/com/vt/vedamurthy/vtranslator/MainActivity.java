@@ -50,6 +50,10 @@ import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.vt.vedamurthy.vtranslator.R;
 import com.vt.vedamurthy.vtranslator.common.AboutActivity;
 import com.vt.vedamurthy.vtranslator.common.Configs;
+import com.vt.vedamurthy.vtranslator.common.PutRecordedDataAsyncTask;
+import com.vt.vedamurthy.vtranslator.common.RecordedDataActivity;
+import com.vt.vedamurthy.vtranslator.database.AppDataBase;
+import com.vt.vedamurthy.vtranslator.roomModeldata.RecordedData;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,7 +61,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, RewardedVideoAdListener {
+        implements NavigationView.OnNavigationItemSelectedListener, RewardedVideoAdListener,PutRecordedDataAsyncTask.RecordSavedListener {
 
     private ShareActionProvider mShareActionProvider;
     private static final int REQ_CODE_SPEECH_INPUT = 100;
@@ -69,6 +73,8 @@ public class MainActivity extends AppCompatActivity
     private Button showAd;
     private MediaRecorder recorder = null;
     private int currentFormat = 0;
+    private AppDataBase appDataBase;
+    private RecordedData recordedData;
 
     private static final String AUDIO_RECORDER_FILE_EXT_3GP = ".3gp";
     private static final String AUDIO_RECORDER_FILE_EXT_MP4 = ".mp4";
@@ -103,6 +109,7 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        appDataBase = AppDataBase.getInstance(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -139,6 +146,30 @@ public class MainActivity extends AppCompatActivity
         } catch (ActivityNotFoundException a) {
 
         }
+    }
+
+    private void saveRecordData()
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                recordedData.setRecordedText("hcnhdsbc scjgsc");
+                recordedData.setTranslatedText("ghjavhjf weghgwejhg");
+                appDataBase.recordedDataDAO().putRecordedData(recordedData);
+            }
+        }) .start();
+        PutRecordedDataAsyncTask putRecordedDataAsyncTask = new PutRecordedDataAsyncTask(recordedData, this, new PutRecordedDataAsyncTask.RecordSavedListener() {
+            @Override
+            public void recordSaved() {
+
+            }
+
+            @Override
+            public void recordSaveFailed() {
+
+            }
+        });
+        putRecordedDataAsyncTask.execute();
     }
 
     private void initialiseButtonAction(final TextView spokenText) {
@@ -357,7 +388,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_camera) {
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
-
+            navigateToRecordList();
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -388,6 +419,12 @@ public class MainActivity extends AppCompatActivity
     private void navigateToAbout()
     {
         Intent intent = new Intent(this, AboutActivity.class);
+        startActivity(intent);
+    }
+
+    private void navigateToRecordList()
+    {
+        Intent intent = new Intent(this, RecordedDataActivity.class);
         startActivity(intent);
     }
 
@@ -471,5 +508,15 @@ public class MainActivity extends AppCompatActivity
     public void onDestroy() {
         mRewardedVideoAd.destroy(this);
         super.onDestroy();
+    }
+
+    @Override
+    public void recordSaved() {
+
+    }
+
+    @Override
+    public void recordSaveFailed() {
+
     }
 }
